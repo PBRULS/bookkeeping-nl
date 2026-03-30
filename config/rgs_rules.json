@@ -1,0 +1,72 @@
+{
+  "_meta": {
+    "schema_version": "1.0",
+    "rgs_version": "3.4",
+    "derived_from": {
+      "xlsx": {
+        "path": "docs/rgs-source/Def-versie RGS 3.4.xlsx",
+        "sha256": "5631a6ae793492d0171e3abd0c1bc400d4e253a2c769cd05e04258c23be38612",
+        "relevant_sheets": ["RGS3.4", "Recap", "RGS3.4-versus-RGS3.3"]
+      },
+      "docx_best_practice": {
+        "path": "docs/rgs-source/Best practice RGS voor de softwareleverancier 15112017.docx",
+        "sha256": "fb8789e4e95238da7ebfe91aeb181680f9335b93867b8de2ce3cae0e2cac44b7"
+      },
+      "pdf_release_notes": {
+        "path": "docs/rgs-source/Toelichting releasenotes bij definitieve versie RGS 3.4.pdf",
+        "sha256": "92ad3e992276f23c5609dd805b4305b12c1bbc2f9add9b12386ee8a0aa175123"
+      }
+    },
+    "source_documents": [
+      "Def-versie RGS 3.4.xlsx",
+      "Best practice RGS voor de softwareleverancier 15112017.docx",
+      "Toelichting releasenotes bij definitieve versie RGS 3.4.pdf"
+    ],
+    "notes": "Operational ruleset for KasKompas derived from RGS 3.4 source artifacts. Tighten/extend as implementation matures."
+  },
+  "sales_invoice_line": {
+    "default_debit_account": "1300",
+    "allowed_credit_accounts": [
+      "4000", "4001", "4002", "4003", "4004"
+    ],
+    "vat_credit_accounts": {
+      "21%": "2110",
+      "9%": "2111",
+      "0%": null,
+      "vrij": null,
+      "verlegd": null
+    }
+  },
+  "purchase_invoice_line": {
+    "default_credit_account": "2000",
+    "allowed_debit_accounts": [
+      "5000", "5001", "6000", "6100", "6200", "6300", "6400", "6500", "6600", "6700", "6800", "7000", "7010", "7020", "7030", "1500", "0200"
+    ],
+    "vat_debit_accounts": {
+      "21%": "1410",
+      "9%": "1411",
+      "0%": null,
+      "vrij": null,
+      "verlegd": null
+    }
+  },
+  "cash_receipt": {
+    "allowed_debit_accounts": ["1000", "1100"],
+    "allowed_credit_accounts": [
+      "1300", "4000", "4001", "4002", "4003", "4004", "8000"
+    ],
+    "default_credit_account": "1300"
+  },
+  "cash_payment": {
+    "allowed_debit_accounts": [
+      "2000", "5000", "5001", "6000", "6100", "6200", "6300", "6400", "6500", "6600", "6700", "6800", "7000", "7010", "7020", "7030", "8100"
+    ],
+    "allowed_credit_accounts": ["1000", "1100"],
+    "default_debit_account": "6000"
+  },
+  "rekening_type_to_account": {
+    "kas": "1000",
+    "bank": "1100",
+    "pin": "1100"
+  }
+}
