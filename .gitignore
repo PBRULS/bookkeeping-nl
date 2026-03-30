@@ -1,0 +1,56 @@
+# Workspace and editor
+*.code-workspace
+.vscode/
+.idea/
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Python caches and virtual envs
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+.coverage
+htmlcov/
+.venv/
+venv/
+env/
+ENV/
+
+# Logs and temp files
+*.log
+*.tmp
+*.old
+*.orig
+*.swp
+*.swo
+
+# Secrets and certificates
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+*.csr
+*.p12
+*.pfx
+*.jks
+*.kdb
+*.kdbx
+
+# Bookkeeping runtime data (never commit)
+bookkeeping-nl/data/*
+!bookkeeping-nl/data/.gitkeep
+bookkeeping-nl/exports/*
+!bookkeeping-nl/exports/.gitkeep
+bookkeeping-nl/backup/
+bookkeeping-nl/logs/

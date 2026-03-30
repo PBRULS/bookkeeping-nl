@@ -1,0 +1,2 @@
+# Keepable placeholder — data/ and exports/ are in .gitignore
+# but the directories need to exist when the app first runs.

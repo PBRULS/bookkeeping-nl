@@ -1,0 +1,87 @@
+{
+  "_meta": {
+    "schema_version": "1.0",
+    "effective_date": "2026-01-01",
+    "country": "NL",
+    "last_updated": "2026-01-01",
+    "source": "Wet op de Omzetbelasting 1968 (Wet OB)",
+    "notes": "Update this file only — no code changes needed when tax rules change."
+  },
+  "btw_tarieven": {
+    "hoog": {
+      "code": "21%",
+      "rate": 0.21,
+      "description": "Hoog BTW-tarief (algemeen)",
+      "voorbeelden": ["elektronica", "kleding", "diensten algemeen"],
+      "aangifte_rubriek": "1a"
+    },
+    "laag": {
+      "code": "9%",
+      "rate": 0.09,
+      "description": "Laag BTW-tarief (voedsel, geneesmiddelen, boeken, kunst)",
+      "voorbeelden": ["levensmiddelen", "boeken", "geneesmiddelen", "bloemen", "kunst"],
+      "aangifte_rubriek": "1b"
+    },
+    "nul": {
+      "code": "0%",
+      "rate": 0.00,
+      "description": "Nultarief (export buiten EU)",
+      "voorbeelden": ["export buiten EU", "internationale transport"],
+      "aangifte_rubriek": "3a"
+    },
+    "vrijgesteld": {
+      "code": "vrij",
+      "rate": null,
+      "description": "Vrijgesteld van BTW (geen recht op aftrek voorbelasting)",
+      "voorbeelden": ["zorg", "onderwijs", "financiële diensten", "verzekeringen"],
+      "aangifte_rubriek": null
+    },
+    "verlegd": {
+      "code": "verlegd",
+      "rate": 0.00,
+      "description": "BTW verlegd naar afnemer (omgekeerde heffing)",
+      "voorbeelden": ["intra-EU levering B2B met geldig BTW-nummer", "bouwdiensten sub-aanneming"],
+      "aangifte_rubriek": "4a"
+    },
+    "eu_b2c": {
+      "code": "eu_b2c",
+      "rate": null,
+      "description": "EU B2C — tarief van bestemmingsland via OSS",
+      "voorbeelden": ["digitale diensten aan particulieren in EU"],
+      "aangifte_rubriek": "5b",
+      "oss_verplicht": true
+    }
+  },
+  "kor": {
+    "naam": "Kleine Ondernemersregeling",
+    "drempel": 20000,
+    "beschrijving": "Vrijstelling van BTW-plicht bij omzet onder de drempel",
+    "wetsartikel": "Art. 25 Wet OB 1968",
+    "aanmelden_bij": "Belastingdienst",
+    "opzegtermijn_maanden": 36,
+    "actief": false,
+    "opmerking": "Zet 'actief' op true als KOR van toepassing is. Het systeem past de BTW-berekening dan aan."
+  },
+  "administratie": {
+    "bewaarplicht_jaren": 7,
+    "onroerend_goed_jaren": 10,
+    "aangifte_deadline_dagen": 30,
+    "default_aangifte_periode": "kwartaal",
+    "mogelijke_periodes": ["kwartaal", "maand", "jaar"]
+  },
+  "valuta": {
+    "standaard": "EUR",
+    "symbool": "€"
+  },
+  "drempels": {
+    "intrastat_drempel": 900000,
+    "klein_bedrijf_omzet": 10000,
+    "ioss_drempel": 10000
+  },
+  "inkomstenbelasting": {
+    "zelfstandigenaftrek": 2470,
+    "startersaftrek": 2123,
+    "mkb_winstvrijstelling_pct": 0.1327,
+    "notitie": "Bedragen 2026 — controleer jaarlijks bij Belastingdienst"
+  }
+}

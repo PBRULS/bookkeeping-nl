@@ -1,0 +1,354 @@
+/* ====================================================
+   Boekhouding NL — Main Stylesheet
+   Offline, no external dependencies
+   ==================================================== */
+
+:root {
+  --primary:    #1a5276;
+  --primary-lt: #2980b9;
+  --accent:     #e67e22;
+  --success:    #27ae60;
+  --danger:     #e74c3c;
+  --warning:    #f39c12;
+  --bg:         #f4f6f9;
+  --surface:    #ffffff;
+  --border:     #d5d8dc;
+  --text:       #2c3e50;
+  --muted:      #7f8c8d;
+  --sidebar-w:  240px;
+  --header-h:   56px;
+  --radius:     6px;
+  --shadow:     0 1px 4px rgba(0,0,0,0.12);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 14px;
+  color: var(--text);
+  background: var(--bg);
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ---- Sidebar --------------------------------------------- */
+#sidebar {
+  width: var(--sidebar-w);
+  background: var(--primary);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 100;
+  overflow-y: auto;
+}
+
+#sidebar .logo {
+  padding: 18px 16px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+}
+#sidebar .logo h1 { font-size: 15px; font-weight: 700; line-height: 1.2; }
+#sidebar .logo small { font-size: 11px; opacity: 0.7; }
+
+#sidebar nav { flex: 1; padding: 8px 0; }
+
+#sidebar nav a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  color: rgba(255,255,255,0.85);
+  text-decoration: none;
+  font-size: 13px;
+  border-left: 3px solid transparent;
+  transition: background 0.15s, border-color 0.15s;
+}
+#sidebar nav a:hover  { background: rgba(255,255,255,0.1); }
+#sidebar nav a.active {
+  background: rgba(255,255,255,0.15);
+  border-left-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+#sidebar nav .nav-section {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.45);
+  padding: 14px 16px 4px;
+}
+
+/* ---- Main ------------------------------------------------- */
+#main {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+#topbar {
+  height: var(--header-h);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  box-shadow: var(--shadow);
+}
+#topbar h2 { font-size: 16px; font-weight: 600; flex: 1; }
+#topbar .year-selector { display: flex; align-items: center; gap: 8px; }
+#topbar select { border: 1px solid var(--border); border-radius: var(--radius); padding: 4px 8px; }
+
+#content { padding: 24px; flex: 1; }
+
+/* ---- Cards ------------------------------------------------ */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  margin-bottom: 20px;
+}
+.card-header {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.card-header h3 { font-size: 14px; font-weight: 600; }
+.card-body { padding: 18px; }
+
+/* ---- Dashboard KPIs --------------------------------------- */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.kpi {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow);
+}
+.kpi .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 6px; }
+.kpi .value { font-size: 22px; font-weight: 700; color: var(--primary); }
+.kpi .value.danger  { color: var(--danger); }
+.kpi .value.success { color: var(--success); }
+.kpi .value.warning { color: var(--warning); }
+
+/* ---- Tables ----------------------------------------------- */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th {
+  background: var(--bg);
+  padding: 9px 12px;
+  text-align: left;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+tbody td { padding: 9px 12px; border-bottom: 1px solid var(--bg); vertical-align: middle; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: #fafbfc; }
+
+/* ---- Badges ----------------------------------------------- */
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.badge-green   { background: #d5f5e3; color: #1e8449; }
+.badge-orange  { background: #fdebd0; color: #9c640c; }
+.badge-red     { background: #fadbd8; color: #922b21; }
+.badge-blue    { background: #d6eaf8; color: #1a5276; }
+.badge-grey    { background: #eaecee; color: #566573; }
+
+/* ---- Buttons ---------------------------------------------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: var(--radius);
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: opacity 0.15s, filter 0.15s;
+  text-decoration: none;
+}
+.btn:hover { filter: brightness(0.92); }
+.btn:active { filter: brightness(0.85); }
+.btn-primary  { background: var(--primary);  color: #fff; }
+.btn-accent   { background: var(--accent);   color: #fff; }
+.btn-success  { background: var(--success);  color: #fff; }
+.btn-danger   { background: var(--danger);   color: #fff; }
+.btn-outline  { background: transparent; border: 1px solid var(--border); color: var(--text); }
+.btn-sm { padding: 4px 10px; font-size: 12px; }
+
+/* ---- Forms ------------------------------------------------ */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+.form-group { display: flex; flex-direction: column; gap: 4px; }
+.form-group.full { grid-column: 1 / -1; }
+.form-group label { font-size: 12px; font-weight: 600; color: var(--muted); }
+.form-group input,
+.form-group select,
+.form-group textarea {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 7px 10px;
+  font-size: 13px;
+  width: 100%;
+  background: var(--surface);
+  color: var(--text);
+  transition: border-color 0.15s;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--primary-lt);
+  box-shadow: 0 0 0 2px rgba(41,128,185,0.15);
+}
+
+/* ---- Modal ------------------------------------------------ */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 200;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 60px;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  width: min(720px, 95vw);
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+}
+.modal-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.modal-header h3 { font-size: 15px; font-weight: 600; }
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: var(--muted);
+  line-height: 1;
+}
+.modal-body { padding: 20px; overflow-y: auto; flex: 1; }
+.modal-footer {
+  padding: 14px 20px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* ---- Invoice lines editor --------------------------------- */
+.line-editor { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.line-editor table { width: 100%; }
+.line-editor thead th { padding: 8px 10px; }
+.line-editor tbody td { padding: 4px 6px; }
+.line-editor input, .line-editor select {
+  border: none;
+  background: transparent;
+  width: 100%;
+  padding: 4px 6px;
+}
+.line-editor input:focus, .line-editor select:focus {
+  outline: 2px solid var(--primary-lt);
+  border-radius: 3px;
+}
+.line-editor tfoot td { padding: 8px 10px; font-weight: 600; background: var(--bg); }
+.line-add { padding: 8px 10px; border-top: 1px solid var(--border); }
+
+/* ---- Alerts ---------------------------------------------- */
+.alert {
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  margin-bottom: 14px;
+}
+.alert-info    { background: #d6eaf8; color: #1a5276; border-left: 3px solid var(--primary-lt); }
+.alert-success { background: #d5f5e3; color: #1e8449; border-left: 3px solid var(--success); }
+.alert-warning { background: #fdebd0; color: #9c640c; border-left: 3px solid var(--warning); }
+.alert-danger  { background: #fadbd8; color: #922b21; border-left: 3px solid var(--danger); }
+
+/* ---- BTW report ------------------------------------------ */
+.btw-report table { max-width: 560px; }
+.btw-report .section-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  padding: 12px 12px 4px;
+  border-top: 1px solid var(--border);
+}
+.btw-report .total-row td { font-weight: 700; border-top: 2px solid var(--border); }
+.btw-report .saldo-pos td { color: var(--danger); font-weight: 700; font-size: 15px; }
+.btw-report .saldo-neg td { color: var(--success); font-weight: 700; font-size: 15px; }
+
+/* ---- Utilities ------------------------------------------- */
+.text-right { text-align: right; }
+.text-muted  { color: var(--muted); }
+.text-danger { color: var(--danger); }
+.text-success { color: var(--success); }
+.mt-1 { margin-top: 8px; }
+.mt-2 { margin-top: 16px; }
+.flex { display: flex; }
+.flex-gap { gap: 10px; }
+.flex-1 { flex: 1; }
+.hidden { display: none !important; }
+
+/* ---- Spinner --------------------------------------------- */
+.spinner {
+  border: 3px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  width: 28px; height: 28px;
+  animation: spin 0.7s linear infinite;
+  margin: 24px auto;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ---- Responsive ------------------------------------------ */
+@media (max-width: 768px) {
+  #sidebar { transform: translateX(-100%); transition: transform 0.25s; }
+  #sidebar.open { transform: translateX(0); }
+  #main { margin-left: 0; }
+}
