@@ -7,6 +7,7 @@ import json
 import hashlib
 from datetime import datetime
 from typing import Any
+from ..services.invoice_service import validate_status_transition
 
 
 # ------------------------------------------------------------------ #
@@ -211,10 +212,34 @@ def get_verkoopfactuur(db_path: str, factuur_id: int) -> dict | None:
 
 
 def create_verkoopfactuur(db_path: str, header: dict, regels: list[dict]) -> int:
-    cols_h = ["factuurnummer", "klant_id", "klant_naam", "klant_adres", "klant_btw_nummer",
-              "factuurdatum", "vervaldatum", "status", "valuta",
-              "subtotaal", "btw_21", "btw_9", "btw_0", "btw_totaal", "totaal",
-              "btw_type", "omgekeerde_heffing", "betalingskenmerk", "notities"]
+    header = {
+        "status": "concept",
+        "valuta": "EUR",
+        "btw_type": "NL",
+        "omgekeerde_heffing": 0,
+        **header,
+    }
+    cols_h = [
+        "factuurnummer",
+        "klant_id",
+        "klant_naam",
+        "klant_adres",
+        "klant_btw_nummer",
+        "factuurdatum",
+        "vervaldatum",
+        "status",
+        "valuta",
+        "subtotaal",
+        "btw_21",
+        "btw_9",
+        "btw_0",
+        "btw_totaal",
+        "totaal",
+        "btw_type",
+        "omgekeerde_heffing",
+        "betalingskenmerk",
+        "notities",
+    ]
     vals_h = [header.get(c) for c in cols_h]
 
     handtekening = _sign({**header, "regels": regels})
@@ -227,28 +252,89 @@ def create_verkoopfactuur(db_path: str, header: dict, regels: list[dict]) -> int
         )
         fid = cur.lastrowid
         _insert_verkoopregels(conn, fid, regels)
-        log_audit(conn, "CREATE", "verkoopfacturen", fid, None, {**header, "regels": regels})
+        log_audit(
+            conn,
+            "CREATE",
+            "verkoopfacturen",
+            fid,
+            None,
+            {**header, "regels": regels},
+        )
         conn.commit()
     return fid
 
 
-def _insert_verkoopregels(conn: sqlite3.Connection, fid: int, regels: list[dict]) -> None:
-    cols = ["factuur_id", "artikel_id", "omschrijving", "hoeveelheid", "eenheid",
-            "eenheidsprijs", "btw_tarief", "btw_bedrag", "totaal_excl", "totaal_incl",
-            "grootboek_rekening"]
+def _insert_verkoopregels(
+    conn: sqlite3.Connection,
+    fid: int,
+    regels: list[dict],
+) -> None:
+    cols = [
+        "factuur_id",
+        "artikel_id",
+        "omschrijving",
+        "hoeveelheid",
+        "eenheid",
+        "eenheidsprijs",
+        "btw_tarief",
+        "btw_bedrag",
+        "totaal_excl",
+        "totaal_incl",
+        "grootboek_rekening",
+    ]
     for r in regels:
         vals = [fid] + [r.get(c) for c in cols[1:]]
         conn.execute(
-            f"INSERT INTO verkoopfactuurregels ({','.join(cols)}) VALUES ({','.join(['?']*len(cols))})",
-            vals
+            (
+                f"INSERT INTO verkoopfactuurregels ({','.join(cols)}) "
+                f"VALUES ({','.join(['?'] * len(cols))})"
+            ),
+            vals,
         )
 
 
-def update_verkoopfactuur_status(db_path: str, factuur_id: int, status: str,
-                                  betaald_bedrag: float | None = None,
-                                  betalingsdatum: str | None = None) -> None:
+def update_verkoopfactuur_status(
+    db_path: str,
+    factuur_id: int,
+    status: str,
+    betaald_bedrag: float | None = None,
+    betalingsdatum: str | None = None,
+) -> None:
+    allowed_transitions = {
+        "concept": {"concept", "verzonden", "gecrediteerd"},
+        "verzonden": {
+            "verzonden",
+            "deels_betaald",
+            "betaald",
+            "verlopen",
+            "gecrediteerd",
+        },
+        "deels_betaald": {"deels_betaald", "betaald", "verlopen"},
+        "verlopen": {"verlopen", "deels_betaald", "betaald", "gecrediteerd"},
+        "betaald": {"betaald"},
+        "gecrediteerd": {"gecrediteerd"},
+    }
+
     with get_db(db_path) as conn:
-        old = row_to_dict(conn.execute("SELECT * FROM verkoopfacturen WHERE id=?", (factuur_id,)).fetchone())
+        old = row_to_dict(
+            conn.execute(
+                "SELECT * FROM verkoopfacturen WHERE id=?",
+                (factuur_id,),
+            ).fetchone()
+        )
+        if old is None:
+            return
+
+        betaald_bedrag, betalingsdatum = validate_status_transition(
+            str(old.get("status") or "concept"),
+            status,
+            float(old.get("totaal") or 0),
+            float(old.get("betaald_bedrag") or 0),
+            old.get("betalingsdatum"),
+            betaald_bedrag,
+            betalingsdatum,
+            allowed_transitions,
+        )
         conn.execute(
             """UPDATE verkoopfacturen
                SET status=?, betaald_bedrag=COALESCE(?,betaald_bedrag),
@@ -257,8 +343,14 @@ def update_verkoopfactuur_status(db_path: str, factuur_id: int, status: str,
                WHERE id=?""",
             (status, betaald_bedrag, betalingsdatum, factuur_id)
         )
-        log_audit(conn, "UPDATE_STATUS", "verkoopfacturen", factuur_id, old,
-                  {"status": status, "betaald_bedrag": betaald_bedrag})
+        log_audit(
+            conn,
+            "UPDATE_STATUS",
+            "verkoopfacturen",
+            factuur_id,
+            old,
+            {"status": status, "betaald_bedrag": betaald_bedrag},
+        )
         conn.commit()
 
 
@@ -291,10 +383,30 @@ def get_inkoopfactuur(db_path: str, factuur_id: int) -> dict | None:
 
 
 def create_inkoopfactuur(db_path: str, header: dict, regels: list[dict]) -> int:
-    cols_h = ["referentie", "leverancier_factuur_nr", "leverancier_id", "leverancier_naam",
-              "factuurdatum", "vervaldatum", "status", "valuta",
-              "subtotaal", "btw_bedrag", "totaal", "categorie",
-              "btw_type", "aftrekbaar_btw_pct", "notities"]
+    header = {
+        "status": "ontvangen",
+        "valuta": "EUR",
+        "btw_type": "NL",
+        "aftrekbaar_btw_pct": 100,
+        **header,
+    }
+    cols_h = [
+        "referentie",
+        "leverancier_factuur_nr",
+        "leverancier_id",
+        "leverancier_naam",
+        "factuurdatum",
+        "vervaldatum",
+        "status",
+        "valuta",
+        "subtotaal",
+        "btw_bedrag",
+        "totaal",
+        "categorie",
+        "btw_type",
+        "aftrekbaar_btw_pct",
+        "notities",
+    ]
     vals_h = [header.get(c) for c in cols_h]
     handtekening = _sign({**header, "regels": regels})
 
@@ -305,9 +417,18 @@ def create_inkoopfactuur(db_path: str, header: dict, regels: list[dict]) -> int:
             vals_h + [handtekening]
         )
         fid = cur.lastrowid
-        cols_r = ["factuur_id", "artikel_id", "omschrijving", "hoeveelheid",
-                  "eenheidsprijs", "btw_tarief", "btw_bedrag", "totaal_excl",
-                  "totaal_incl", "grootboek_rekening"]
+        cols_r = [
+            "factuur_id",
+            "artikel_id",
+            "omschrijving",
+            "hoeveelheid",
+            "eenheidsprijs",
+            "btw_tarief",
+            "btw_bedrag",
+            "totaal_excl",
+            "totaal_incl",
+            "grootboek_rekening",
+        ]
         for r in regels:
             vals_r = [fid] + [r.get(c) for c in cols_r[1:]]
             conn.execute(
@@ -315,16 +436,64 @@ def create_inkoopfactuur(db_path: str, header: dict, regels: list[dict]) -> int:
                 f"VALUES ({','.join(['?']*len(cols_r))})",
                 vals_r
             )
-        log_audit(conn, "CREATE", "inkoopfacturen", fid, None, {**header, "regels": regels})
+        log_audit(
+            conn,
+            "CREATE",
+            "inkoopfacturen",
+            fid,
+            None,
+            {**header, "regels": regels},
+        )
         conn.commit()
     return fid
 
 
-def update_inkoopfactuur_status(db_path: str, factuur_id: int, status: str,
-                                 betaald_bedrag: float | None = None,
-                                 betalingsdatum: str | None = None) -> None:
+def update_inkoopfactuur_status(
+    db_path: str,
+    factuur_id: int,
+    status: str,
+    betaald_bedrag: float | None = None,
+    betalingsdatum: str | None = None,
+) -> None:
+    allowed_transitions = {
+        "ontvangen": {
+            "ontvangen",
+            "goedgekeurd",
+            "deels_betaald",
+            "betaald",
+            "gecrediteerd",
+        },
+        "goedgekeurd": {
+            "goedgekeurd",
+            "deels_betaald",
+            "betaald",
+            "gecrediteerd",
+        },
+        "deels_betaald": {"deels_betaald", "betaald"},
+        "betaald": {"betaald"},
+        "gecrediteerd": {"gecrediteerd"},
+    }
+
     with get_db(db_path) as conn:
-        old = row_to_dict(conn.execute("SELECT * FROM inkoopfacturen WHERE id=?", (factuur_id,)).fetchone())
+        old = row_to_dict(
+            conn.execute(
+                "SELECT * FROM inkoopfacturen WHERE id=?",
+                (factuur_id,),
+            ).fetchone()
+        )
+        if old is None:
+            return
+
+        betaald_bedrag, betalingsdatum = validate_status_transition(
+            str(old.get("status") or "ontvangen"),
+            status,
+            float(old.get("totaal") or 0),
+            float(old.get("betaald_bedrag") or 0),
+            old.get("betalingsdatum"),
+            betaald_bedrag,
+            betalingsdatum,
+            allowed_transitions,
+        )
         conn.execute(
             """UPDATE inkoopfacturen
                SET status=?, betaald_bedrag=COALESCE(?,betaald_bedrag),
@@ -333,8 +502,14 @@ def update_inkoopfactuur_status(db_path: str, factuur_id: int, status: str,
                WHERE id=?""",
             (status, betaald_bedrag, betalingsdatum, factuur_id)
         )
-        log_audit(conn, "UPDATE_STATUS", "inkoopfacturen", factuur_id, old,
-                  {"status": status, "betaald_bedrag": betaald_bedrag})
+        log_audit(
+            conn,
+            "UPDATE_STATUS",
+            "inkoopfacturen",
+            factuur_id,
+            old,
+            {"status": status, "betaald_bedrag": betaald_bedrag},
+        )
         conn.commit()
 
 

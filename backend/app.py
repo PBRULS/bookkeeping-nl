@@ -4,6 +4,7 @@ Flask application factory.
 import os
 from flask import Flask
 from flask_cors import CORS
+from .services.invoice_service import InvoiceValidationError
 from .services.rgs_validation_service import RgsValidationError
 
 from .routes.dashboard import dashboard_bp
@@ -55,6 +56,14 @@ def create_app(db_path: str) -> Flask:
             "code": exc.code,
             "message": exc.message,
             "details": exc.details or [],
+        }, 400
+
+    @app.errorhandler(InvoiceValidationError)
+    def handle_invoice_validation_error(exc: InvoiceValidationError):
+        return {
+            "error": "INVOICE_VALIDATION_FAILED",
+            "code": exc.code,
+            "message": exc.message,
         }, 400
 
     return app
